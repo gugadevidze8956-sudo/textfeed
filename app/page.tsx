@@ -1,28 +1,32 @@
-export default function CreatePage() {
-return (
-<main style={{
-display: "flex",
-flexDirection: "column",
-alignItems: "center",
-marginTop: "100px",
-fontFamily: "Arial"
-}}>
-<h1>Create a Post</h1>
-<textarea
-placeholder="Write something..."
-style={{
-width: "300px",
-height: "100px",
-marginTop: "20px"
-}}
-/>
-<button style={{
-marginTop: "20px",
-padding: "10px 20px",
-cursor: "pointer"
-}}>
-Post
-</button>
-</main>
-);
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+export default function Home() {
+  const [posts, setPosts] = useState<string[]>([]);
+
+  useEffect(() => {
+    const savedPosts = JSON.parse(localStorage.getItem("posts") || "[]");
+    setPosts(savedPosts);
+  }, []);
+
+  return (
+    <main style={{ textAlign: "center", marginTop: "50px" }}>
+      <h1>TEXTFEED</h1>
+
+      <Link href="/create">
+        <button style={{ margin: "20px" }}>Create Post</button>
+      </Link>
+
+      {posts.length === 0 ? (
+        <p>No posts yet...</p>
+      ) : (
+        posts.map((post, index) => (
+          <div key={index}>
+            <p>{post}</p>
+          </div>
+        ))
+      )}
+    </main>
+  );
 }
