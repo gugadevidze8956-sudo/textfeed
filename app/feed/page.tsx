@@ -1,24 +1,39 @@
 "use client";
+
 import { useEffect, useState } from "react";
 
-export default function Feed() {
-  const [posts, setPosts] = useState([]);
+type Post = {
+  id: number;
+  username: string;
+  content: string;
+};
+
+export default function FeedPage() {
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("posts") || "[]");
-    setPosts(data);
+    const stored = localStorage.getItem("posts");
+    if (stored) {
+      setPosts(JSON.parse(stored));
+    }
   }, []);
 
   return (
-    <div className="p-4 text-white">
-      <h1>Feed</h1>
+    <div className="min-h-screen bg-black text-white p-4">
+      <h1 className="text-2xl font-bold mb-4 text-center">FOXFEED 🔥</h1>
 
-      {posts.map((p) => (
-        <div key={p.id} className="bg-zinc-900 p-3 rounded mt-2">
-          <b>@{p.username}</b>
-          <p>{p.content}</p>
-        </div>
-      ))}
+      {posts.length === 0 && (
+        <p className="text-center text-gray-400">No posts yet...</p>
+      )}
+
+      <div className="space-y-3 max-w-md mx-auto">
+        {posts.map((p) => (
+          <div key={p.id} className="bg-zinc-900 p-3 rounded-xl shadow">
+            <b className="text-orange-400">@{p.username}</b>
+            <p className="mt-1">{p.content}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
