@@ -2,34 +2,40 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function CreatePage() {
+export default function Create() {
   const [text, setText] = useState("");
   const router = useRouter();
 
-  function handleSubmit() {
+  const handlePost = () => {
     if (!text) return;
 
-    const existingPosts = JSON.parse(localStorage.getItem("posts") || "[]");
-    existingPosts.push(text);
-    localStorage.setItem("posts", JSON.stringify(existingPosts));
+    const posts = JSON.parse(localStorage.getItem("posts") || "[]");
 
-    router.push("/");
-  }
+    const newPost = {
+      id: Date.now(),
+      username: "guga",
+      content: text,
+    };
+
+    localStorage.setItem("posts", JSON.stringify([newPost, ...posts]));
+    router.push("/feed");
+  };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>Create Post</h2>
-
-      <input
-        type="text"
+    <div className="p-4 text-white">
+      <textarea
+        className="w-full bg-zinc-900 p-3 rounded"
+        placeholder="დაწერე რამე..."
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Write something..."
       />
 
-      <br /><br />
-
-      <button onClick={handleSubmit}>Post</button>
+      <button
+        onClick={handlePost}
+        className="mt-3 bg-white text-black px-4 py-2 rounded"
+      >
+        Post
+      </button>
     </div>
   );
 }
