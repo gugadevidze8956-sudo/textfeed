@@ -1,20 +1,30 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function Login() {
+  const [name, setName] = useState("");
   const router = useRouter();
 
-  useEffect(() => {
-    const user = localStorage.getItem("user");
+  const login = () => {
+    if (!name) return;
 
-    if (user) {
-      router.push("/feed");
-    } else {
-      router.push("/login");
-    }
-  }, []);
+    localStorage.setItem("user", name);
+    router.push("/feed");
+  };
 
-  return null;
+  return (
+    <div style={{ padding: 40 }}>
+      <h2>Login</h2>
+
+      <input
+        placeholder="Enter username"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
+      <button onClick={login}>Enter</button>
+    </div>
+  );
 }
