@@ -1,54 +1,84 @@
 "use client";
+import { useState } from "react";
 
-import Link from "next/link";
-import { useEffect } from "react";
+export default function CreatePost() {
+  const [text, setText] = useState("");
 
-export default function Home() {
-  // 🔥 Service Worker რეგისტრაცია (PWA)
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js");
-    }
-  }, []);
+  const addPost = () => {
+    if (!text) return;
+
+    const old = JSON.parse(localStorage.getItem("posts") || "[]");
+
+    const newPost = {
+      text,
+      date: new Date().toLocaleString(),
+    };
+
+    localStorage.setItem("posts", JSON.stringify([newPost, ...old]));
+    window.location.href = "/";
+  };
 
   return (
-    <main className="min-h-screen bg-black text-white flex justify-center">
-      <div className="w-full max-w-md border-x border-gray-800 min-h-screen relative">
+    <div style={styles.wrapper}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>🦊 Create Post</h2>
 
-        {/* HEADER */}
-        <div className="sticky top-0 bg-black p-4 text-center font-bold text-lg border-b border-gray-800">
-          FOXFEED 🦊🔥
-        </div>
+        <textarea
+          placeholder="What's happening?"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          style={styles.textarea}
+        />
 
-        {/* FEED PREVIEW */}
-        <div className="p-4 space-y-4 pb-24">
-          <div className="bg-zinc-900 rounded-xl p-4">
-            <p className="text-sm text-gray-400">@guga</p>
-            <p className="text-lg mt-1">FOXFEED უკვე აპია 📱🔥</p>
-          </div>
-
-          <div className="bg-zinc-900 rounded-xl p-4">
-            <p className="text-sm text-gray-400">@fox</p>
-            <p className="text-lg mt-1">Install me on your phone 🚀</p>
-          </div>
-        </div>
-
-        {/* 🔥 BOTTOM NAVBAR */}
-        <div className="fixed bottom-0 w-full max-w-md bg-black border-t border-gray-800 flex justify-around py-3 text-xl">
-          <Link href="/feed" className="hover:scale-110 transition">
-            🏠
-          </Link>
-
-          <Link href="/create" className="hover:scale-110 transition">
-            ➕
-          </Link>
-
-          <Link href="/profile" className="hover:scale-110 transition">
-            👤
-          </Link>
-        </div>
-
+        <button onClick={addPost} style={styles.button}>
+          Post 🚀
+        </button>
       </div>
-    </main>
+    </div>
   );
 }
+
+const styles = {
+  wrapper: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "linear-gradient(135deg,#0f172a,#1e293b)",
+  },
+  card: {
+    background: "#020617",
+    padding: "30px",
+    borderRadius: "20px",
+    width: "100%",
+    maxWidth: "400px",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
+    border: "1px solid #1e293b",
+  },
+  title: {
+    color: "white",
+    marginBottom: "20px",
+    textAlign: "center" as const,
+  },
+  textarea: {
+    width: "100%",
+    minHeight: "120px",
+    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #334155",
+    background: "#020617",
+    color: "white",
+    marginBottom: "15px",
+    outline: "none",
+  },
+  button: {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "10px",
+    border: "none",
+    background: "linear-gradient(90deg,#f97316,#ea580c)",
+    color: "white",
+    fontWeight: "bold" as const,
+    cursor: "pointer",
+  },
+};
