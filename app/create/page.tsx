@@ -1,41 +1,49 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 
-export default function Create() {
+import { useState, useEffect } from "react";
+
+export default function Home() {
+  const [posts, setPosts] = useState<string[]>([]);
   const [text, setText] = useState("");
-  const router = useRouter();
 
-  const handlePost = () => {
-    if (!text) return;
+  // load posts
+  useEffect(() => {
+    const saved = localStorage.getItem("foxfeed-posts");
+    if (saved) setPosts(JSON.parse(saved));
+  }, []);
 
-    const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+  // save posts
+  useEffect(() => {
+    localStorage.setItem("foxfeed-posts", JSON.stringify(posts));
+  }, [posts]);
 
-    const newPost = {
-      id: Date.now(),
-      username: "guga",
-      content: text,
-    };
-
-    localStorage.setItem("posts", JSON.stringify([newPost, ...posts]));
-    router.push("/feed");
+  const addPost = () => {
+    if (!text.trim()) return;
+    setPosts([text, ...posts]);
+    setText("");
   };
 
   return (
-    <div className="p-4 text-white">
-      <textarea
-        className="w-full bg-zinc-900 p-3 rounded"
-        placeholder="დაწერე რამე..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
+    <main style={{ maxWidth: 600, margin: "40px auto", fontFamily: "sans-serif" }}>
+      <h1>🦊 FOXFEED</h1>
 
-      <button
-        onClick={handlePost}
-        className="mt-3 bg-white text-black px-4 py-2 rounded"
-      >
-        Post
-      </button>
-    </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Write a post..."
+          style={{ flex: 1, padding: 10 }}
+        />
+        <button onClick={addPost}>Post</button>
+      </div>
+
+      <div style={{ marginTop: 20 }}>
+        {posts.map((p, i) => (
+          <div key={i} style={{ padding: 12, border: "1px solid #ddd", marginBottom: 10 }}>
+            {p}
+          </div>
+        ))}
+      </div>
+    </main>
   );
 }

@@ -1,36 +1,88 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 type Post = {
   id: number;
-  username: string;
   content: string;
+  created_at: string;
 };
 
-export default function FeedPage() {
+export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [text, setText] = useState("");
 
+  // 🧠 Load posts
+  const loadPosts = async () => {
+    const { data } = await supabase
+      .from("posts")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (data) setPosts(data);
+  };
+
+  // 🚀 Add post
+  const addPost = async () => {
+    if (!text.trim()) return;
+
+    await supabase.from("posts").insert({
+      content: text,
+    });
+
+    setText("");
+  };
+
+  // ⚡ Live updates
   useEffect(() => {
-    const stored = localStorage.getItem("posts");
-    if (stored) {
-      setPosts(JSON.parse(stored));
-    }
+    loadPosts();
+
+    const channel = supabase
+      .channel("posts-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "posts" },
+        (payload) => {
+          console.log("LIVE:", payload);
+          loadPosts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white p-4">
-      <h1 className="text-2xl font-bold mb-4 text-center">FOXFEED 🔥</h1>
+    <div className="max-w-xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">FOXFEED 🔥</h1>
 
-      {posts.length === 0 && (
-        <p className="text-center text-gray-400">No posts yet...</p>
-      )}
+      {/* Create post */}
+      <div className="flex gap-2 mb-4">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Write something..."
+          className="flex-1 border rounded px-3 py-2"
+        />
+        <button
+          onClick={addPost}
+          className="bg-black text-white px-4 rounded"
+        >
+          Post
+        </button>
+      </div>
 
-      <div className="space-y-3 max-w-md mx-auto">
+      {/* Feed */}
+      <div className="space-y-3">
         {posts.map((p) => (
-          <div key={p.id} className="bg-zinc-900 p-3 rounded-xl shadow">
-            <b className="text-orange-400">@{p.username}</b>
-            <p className="mt-1">{p.content}</p>
+          <div key={p.id} className="border rounded p-3">
+            <p>{p.content}</p>
+            <span className="text-xs text-gray-500">
+              {new Date(p.created_at).toLocaleString()}
+            </span>
           </div>
         ))}
       </div>
