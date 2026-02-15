@@ -1,6 +1,18 @@
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
+import "./globals.css";
+
+export const metadata = {
+  title: "FOXFEED",
+  description: "Modern social app",
 };
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
