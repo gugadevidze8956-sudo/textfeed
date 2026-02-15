@@ -1,29 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function FeedPage() {
-  const auth = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!auth) return;
-
-    if (!auth.user && !auth.loading) {
+    if (!loading && !user) {
       router.replace("/login");
     }
-  }, [auth, router]);
+  }, [user, loading]);
 
-  if (!auth || auth.loading) {
-    return <div className="p-6">Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (!user) return null;
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold">FOXFEED 🔥</h1>
-      <p>Welcome, {auth.user?.email}</p>
+    <div style={{ padding: 20 }}>
+      <h1>FOXFEED 🔥</h1>
+      <p>{user.email}</p>
+      <button
+        onClick={async () => {
+          await logout();
+          router.push("/login");
+        }}
+      >
+        Logout
+      </button>
     </div>
   );
 }
