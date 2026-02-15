@@ -1,35 +1,38 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 
-const AuthContext = createContext<any>(null);
+type AuthType = {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<any>;
+  register: (email: string, password: string) => Promise<any>;
+  logout: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // load user from localStorage
+  // get session
   useEffect(() => {
-    const saved = localStorage.getItem("user");
-    setUser(saved);
+  const getSession = async () => {
+    const { data } = await supabase.auth.getSession();
+    setUser(data.session?.user ?? null);
     setLoading(false);
-  }, []);
-
-  const login = (name: string) => {
-    localStorage.setItem("user", name);
-    setUser(name);
   };
 
-  const logout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-  };
+  getSession();
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
-    </AuthContext.Provider>
+  const { data: listener } = supabase.auth.onAuthStateChange(
+    (_, session) => {
+      setUser(session?.user ?? null);
+    }
   );
-}
 
-export const useAuth = () => useContext(AuthContext);
+  return () => listener.subscription.unsubscribe();
+}, []);

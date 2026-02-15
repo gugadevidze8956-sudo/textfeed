@@ -1,4 +1,13 @@
 "use client";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+
+const { user, loading } = useAuth();
+const router = useRouter();
+
+useEffect(() => {
+  if (!loading && !user) router.push("/login");
+}, [user, loading]);
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";

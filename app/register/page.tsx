@@ -1,90 +1,51 @@
 "use client";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
-export default function Home() {
-  const [posts, setPosts] = useState<any[]>([]);
-  const [text, setText] = useState("");
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
-  useEffect(() => {
-    loadPosts();
-  }, []);
+export default function Register() {
+  const { register } = useAuth();
+  const router = useRouter();
 
-  async function loadPosts() {
-    const { data } = await supabase
-      .from("posts")
-      .select("*")
-      .order("id", { ascending: false });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    setPosts(data || []);
-  }
-
-  async function addPost() {
-    if (!text) return;
-    await supabase.from("posts").insert({ content: text });
-    setText("");
-    loadPosts();
-  }
+  const handleRegister = async () => {
+    const { error } = await register(email, password);
+    if (!error) {
+      alert("Check your email!");
+      router.push("/login");
+    } else alert(error.message);
+  };
 
   return (
-    <div>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>🦊 FOXFEED</h1>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-white p-6 rounded-xl shadow w-80">
+        <h1 className="text-xl font-bold mb-4">Register 🦊</h1>
 
-      {/* composer */}
-      <div style={{
-        background: "#1a1a1a",
-        padding: 16,
-        borderRadius: 16,
-        marginTop: 20,
-        marginBottom: 20
-      }}>
         <input
-          placeholder="What’s happening?"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 12,
-            border: "none",
-            outline: "none",
-            background: "#0f0f0f",
-            color: "white"
-          }}
+          placeholder="Email"
+          className="w-full border p-2 mb-2 rounded"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full border p-2 mb-4 rounded"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         <button
-          onClick={addPost}
-          style={{
-            marginTop: 10,
-            background: "#ff6b00",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: 10,
-            color: "white",
-            fontWeight: 600,
-            cursor: "pointer"
-          }}
+          onClick={handleRegister}
+          className="w-full bg-orange-500 text-white py-2 rounded"
         >
-          Post
+          Register
         </button>
       </div>
-
-      {/* posts */}
-      {posts.map((p) => (
-        <div
-          key={p.id}
-          style={{
-            background: "#1a1a1a",
-            padding: 16,
-            borderRadius: 16,
-            marginBottom: 12
-          }}
-        >
-          <div style={{ fontSize: 14, opacity: 0.6 }}>anonymous</div>
-          <div style={{ fontSize: 16, marginTop: 6 }}>{p.content}</div>
-        </div>
-      ))}
     </div>
   );
 }
