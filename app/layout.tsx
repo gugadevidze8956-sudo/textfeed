@@ -1,8 +1,9 @@
 import "./globals.css";
+import { AuthProvider } from "@/app/context/AuthContext";
 
 export const metadata = {
   title: "FOXFEED",
-  description: "Georgian social app",
+  description: "Georgia social app",
 };
 
 export default function RootLayout({
@@ -12,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

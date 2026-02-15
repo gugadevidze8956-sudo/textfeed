@@ -10,10 +10,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getSession();
       setUser(data.session?.user ?? null);
       setLoading(false);
-    });
+    };
+
+    getUser();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
@@ -24,13 +27,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  const login = (email: string, password: string) =>
-    supabase.auth.signInWithPassword({ email, password });
+  const login = async (email: string, password: string) => {
+    return await supabase.auth.signInWithPassword({ email, password });
+  };
 
-  const register = (email: string, password: string) =>
-    supabase.auth.signUp({ email, password });
+  const register = async (email: string, password: string) => {
+    return await supabase.auth.signUp({ email, password });
+  };
 
-  const logout = () => supabase.auth.signOut();
+  const logout = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout }}>
