@@ -2,7 +2,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "FOXFEED",
-  description: "Modern social app",
+  description: "Georgian social app",
 };
 
 export default function RootLayout({
